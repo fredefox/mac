@@ -12,7 +12,7 @@ module MAC.Control
 where
 
 import MAC.Lattice
-import MAC.Core (MAC(),ioTCB,runMAC, Res (MkRes))
+import MAC.Core (MACT, runMACT, Res (MkRes), lift)
 import MAC.Exception
 import MAC.Labeled
 import MAC.MVar
@@ -26,8 +26,8 @@ import Control.Concurrent
    the returned value gets inspected.
    __This function must not be used in a concurrent setting__.
 -}
-joinMAC :: (Less l l') => MAC l' a -> MAC l (Labeled l' a)
-joinMAC m = (ioTCB . runMAC)
+joinMAC :: (Less l l') => MACT l' IO a -> MACT l IO (Labeled l' a)
+joinMAC m = (lift . runMACT)
               (catchMAC (m >>= safe_label) hd)
               where safe_label = return . MkRes . MkId
                     hd = safe_label . throw . proxy
@@ -48,14 +48,14 @@ joinMAC m = (ioTCB . runMAC)
 
 
 -- | Safely spawning new threads
-forkMAC :: Less l l' => MAC l' () -> MAC l ()
-forkMAC m = (ioTCB . forkIO . runMAC) m >> return ()
+forkMAC :: Less l l' => MACT l' IO () -> MACT l IO ()
+forkMAC m = (lift . forkIO . runMACT) m >> return ()
 
 {-|
    Safely spawning new threads. The function returns a labeled 'MVar' where
    the outcome of the thread is stored
 -}
-forkMACMVar :: (Less l' l', Less l l') => MAC l' a -> MAC l (MACMVar l' a)
+forkMACMVar :: (Less l' l', Less l l') => MACT l' IO a -> MACT l IO (MACMVar l' a)
 forkMACMVar m = do lmv <- newMACEmptyMVar
                    forkMAC (m >>= putMACMVar lmv)
                    return lmv

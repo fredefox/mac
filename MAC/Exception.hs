@@ -9,19 +9,19 @@ module MAC.Exception
 
 where
 
-import MAC.Core (MAC(MkMAC), ioTCB, runMAC)
-import Control.Exception
+import MAC.Core (MACT(MACT), runMACT, lift)
+import Control.Exception (Exception, catch, throw)
 
 {-|
    Throwing exceptions
 -}
-throwMAC :: Exception e => e -> MAC l a
-throwMAC = ioTCB . throw
+throwMAC :: (Monad m, Exception e) => e -> MACT l m a
+throwMAC = lift . throw
 
 
 {-|
    Throwing and catching exceptions are done among family members with the
    same labels
 -}
-catchMAC :: Exception e => MAC l a -> (e -> MAC l a) -> MAC l a
-catchMAC (MkMAC io) hd = ioTCB $ catch io (runMAC . hd)
+catchMAC :: Exception e => MACT l IO a -> (e -> MACT l IO a) -> MACT l IO a
+catchMAC (MACT io) hd = lift $ catch io (runMACT . hd)

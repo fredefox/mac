@@ -8,15 +8,18 @@ module MAC.Core
        Res (MkRes,unRes)
      , labelOf
      -- Monad MAC
-     , MAC (MkMAC)
+     , MACT (MACT)
+     , runMACT
+     , MAC
      , runMAC
-     -- IO actions into MAC
-     , ioTCB
+     , module Control.Monad.Trans.Class
     )
 
 where
 
-import Control.Applicative
+import Data.Functor.Identity
+import Control.Monad.Trans.Class
+import Control.Monad.IO.Class
 
 -- | Labeling expressions of type @a@ with label @l@.
 newtype Res l a = MkRes {unRes :: a}
@@ -25,30 +28,35 @@ newtype Res l a = MkRes {unRes :: a}
 labelOf :: Res l a -> l
 labelOf _res = undefined
 
+newtype MACT l m a = MACT
+  -- | Execute secure computations.
+  { runMACT :: m a
+  }
+
 {-|
     This monad labels the results of the computation (of type @a@) with
     label @l@.
 -}
---newtype MAC l a = MkMAC {unMAC :: IO a}
-newtype MAC l a = MkMAC (IO a)
+type MAC l = MACT l Identity
 
-instance Functor (MAC l) where
-    fmap f (MkMAC io) = MkMAC (fmap f io)
+runMAC :: MAC l c -> c
+runMAC = runIdentity . runMACT
 
-instance Applicative (MAC l) where
-    pure = MkMAC . return
-    (<*>) (MkMAC f) (MkMAC a) = MkMAC (f <*> a)
+instance Monad m => Functor (MACT l m) where
+    fmap f (MACT m) = MACT (fmap f m)
 
-instance Monad (MAC l) where
+instance Monad m => Applicative (MACT l m) where
+    pure = MACT . return
+    (<*>) (MACT f) (MACT a) = MACT (f <*> a)
+
+instance Monad m => Monad (MACT l m) where
    return = pure
-   MkMAC m >>= k = ioTCB (m >>= runMAC . k)
+   MACT m >>= k = lift (m >>= runMACT . k)
 
+instance MonadTrans (MACT l) where
+  lift = MACT
 
--- | It lifts arbitrary 'IO'-actions.
-ioTCB :: IO a -> MAC l a
-ioTCB = MkMAC
--- Should not be exported!
-
--- | Execute secure computations.
-runMAC :: MAC l a -> IO a
-runMAC (MkMAC m) = m
+-- The original function `ioTCB` had a comment that it should not be exported.
+-- This will prove tricky if we make MACT an instance of MonadIO.
+instance MonadIO m => MonadIO (MACT l m) where
+  liftIO = lift . liftIO

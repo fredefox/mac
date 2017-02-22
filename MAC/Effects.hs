@@ -22,46 +22,46 @@ import MAC.Core
     It lifts functions which create resources into secure functions which
     create labeled resources
 -}
-create :: Less l l' => IO (d a) -> MAC l (Res l' (d a))
-create io = ioTCB io >>= return . MkRes
+create :: (Monad m, Less l l') => m (d a) -> MACT l m (Res l' (d a))
+create m = lift m >>= return . MkRes
 
 
 {-|
     It lifts an 'IO'-action which writes into a data type @d a@
     into a secure function which writes into a labeled resource
 -}
-writeup :: Less l l' => (d a -> IO ()) -> Res l' (d a) -> MAC l ()
-writeup io (MkRes a) = ioTCB $ io a
+writeup :: (Monad m, Less l l') => (d a -> m ()) -> Res l' (d a) -> MACT l m ()
+writeup m (MkRes a) = lift $ m a
 
 {-|
     It lifts an 'IO'-action which reads from a data type @d a@
     into a secure function which reads from a labeled resource
 -}
-readdown :: Less l' l => (d a -> IO a) -> Res l' (d a) -> MAC l a
-readdown io (MkRes da) = ioTCB $ io da
+readdown :: (Monad m, Less l' l) => (d a -> m a) -> Res l' (d a) -> MACT l m a
+readdown io (MkRes da) = lift $ io da
 
 -- | Proxy function to set the index of the family member 'MAC'
-fix :: l -> MAC l ()
+fix :: Monad m => l -> MACT l m ()
 fix _ = return ()
 
 -- | Auxiliary function. A combination of 'fix' and 'readdown'.
-read_and_fix :: Less l l => (d a -> IO a) -> Res l (d a) -> MAC l a
-read_and_fix io r = fix (labelOf r) >> readdown io r
+read_and_fix :: (Monad m, Less l l) => (d a -> m a) -> Res l (d a) -> MACT l m a
+read_and_fix m r = fix (labelOf r) >> readdown m r
 
 -- | Auxiliary function. A combination of 'fix' and 'readdown'.
-write_and_fix :: Less l' l' => (d a -> IO ()) -> Res l' (d a) -> MAC l' ()
+write_and_fix :: (Monad m, Less l' l') => (d a -> m ()) -> Res l' (d a) -> MACT l' m ()
 write_and_fix io r = fix (labelOf r) >> writeup io r
 
 {-|
     It lifts an operation which perform a read on data type @d a@, but
     it also performs a write on it as side-effect
 -}
-rw_read :: (Less l l', Less l' l) => (d a -> IO a) -> Res l' (d a) -> MAC l a
+rw_read :: (Monad m, Less l l', Less l' l) => (d a -> m a) -> Res l' (d a) -> MACT l m a
 rw_read io r = writeup (\_ -> return ()) r >> readdown io r
 
 {-|
     It lifts an operation which perform a write on data type @d a@, but
     it also performs a read on it as side-effect
 -}
-rw_write :: (Less l l', Less l' l) => (d a -> IO ()) -> Res l' (d a) -> MAC l ()
+rw_write :: (Monad m, Less l l', Less l' l) => (d a -> m ()) -> Res l' (d a) -> MACT l m ()
 rw_write io r = readdown (\_ -> return undefined) r >> writeup io r

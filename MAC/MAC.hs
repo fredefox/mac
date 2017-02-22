@@ -7,8 +7,8 @@ module MAC.MAC
        Res ()
      , labelOf
      -- Monad MAC
-     , MAC ()
-     , runMAC
+     , MACT ()
+     , runMACT
      -- Auxiliary proxies
      , fix
     )
@@ -18,5 +18,5 @@ where
 import MAC.Core
 
 -- | To help the type-system
-fix :: l -> MAC l ()
+fix :: Monad m => l -> MACT l m ()
 fix _l = return ()
