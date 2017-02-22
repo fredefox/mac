@@ -29,8 +29,9 @@ labelOf :: Res l a -> l
 labelOf _res = undefined
 
 newtype MACT l m a = MACT
+  {
   -- | Execute secure computations.
-  { runMACT :: m a
+   runMACT :: m a
   }
 
 {-|
