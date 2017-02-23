@@ -1,0 +1,10 @@
+resolver: lts-8.2
+
+packages:
+- '.'
+extra-deps:
+  - http-conduit-2.2.3
+
+flags: {}
+
+extra-package-dbs: []

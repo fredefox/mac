@@ -41,6 +41,7 @@ extra-source-files:
      Examples/Alice3.hs, Examples/Bob3.hs,
      Examples/Alice4.hs, Examples/Bob4.hs,
      Examples/MACWget.hs
+     stack.yaml
 
 library
   build-depends:       base >= 4.7 && < 5, bytestring == 0.10.*, exceptions == 0.8.*, http-conduit == 2.2.*, network >= 2.6 && < 3, transformers
