@@ -6,29 +6,28 @@
 -- | Example secure computations involving pure values and side-effects. To see how to run the computationts defined here, please check the module "SafeExample".
 module Examples where
 
-import MAC.MAC
+import MAC.Core
 import MAC.Lattice
 import MAC.Labeled
 import MAC.Control
 
-import MAC.Exception
-
-import Control.Exception
 import Data.Typeable
 
-low :: MAC L (Labeled L String)
+import Control.Monad
+
+low :: Monad m => MACT L m (Labeled L String)
 low = label "public data"
 
-high :: MAC H (Labeled H String)
+high :: Monad m => MACT H m (Labeled H String)
 high = label "secret data"
 
-toLabeled :: (Less l l', Less l' l') => MAC l' a -> MAC l (Labeled l' a)
+toLabeled :: (Less l l', Less l' l', MonadCatch m) => MACT l' m a -> MACT l m (Labeled l' a)
 toLabeled = joinMAC
 
 {-
    Computing a value from public and secret information
 -}
-example1 :: MAC L (Labeled H String)
+example1 :: MonadCatch m => MACT L m (Labeled H String)
 example1 = do ll <- low                -- This sets the current label here to L
               l  <- unlabel ll
               joinMAC $ do hh <- high  -- This set the current label here to H
@@ -53,10 +52,12 @@ example1 = do ll <- low                -- This sets the current label here to L
 
      - giving the type signature and use unlabel.
 -}
-example2 :: MAC L (Labeled H String)
-example2 = do hh <- example1
-              joinMAC $ do  h <- unlabel hh
-                            return (h ++ h)
+example2 :: MonadCatch m => MACT L m (Labeled H String)
+example2 = do
+  hh <- example1
+  joinMAC $ do
+    h <- unlabel hh
+    return (h ++ h)
 
 data Info = ThisException | ThatException deriving (Typeable, Show)
 instance Exception Info where
@@ -65,35 +66,34 @@ instance Exception Info where
    The example shows that no computation is done after an exception is thrown.
 -}
 
-example3 :: MAC L (Labeled H String)
-example3 = do example1
-              throwMAC ThatException
-              example2
+example3 :: MonadCatch m => MACT L m (Labeled H String)
+example3
+  =  example1
+  >> throwM ThatException
+  >> example2
 
 {-
    Throwing an execption!
 -}
-example4 :: MAC L Int
+example4 :: Monad m => MACT L m Int
 example4 = return $ error "chau"
 
 {-
    Throwing and catching a synchronous exception
 -}
-example4strict :: MAC L Int
+example4strict :: Monad m => MACT L m Int
 example4strict = return $! 5 `div` 0
 
-example5 :: MAC L Int
-example5 = catchMAC
-                example4strict
-                (\(_e :: SomeException) -> return 42)
+example5 :: MonadCatch m => MACT L m Int
+example5 = example4strict `catch` \(_e :: SomeException) -> return 42
 
 {-
    An exception can be returned, but not triggered, i.e., an asynchronous
    exception. This is not a proble since it is within the same monad family
    member.
 -}
-example6 :: MAC L Int
-example6 = catchMAC
+example6 :: MonadCatch m => MACT L m Int
+example6 = catch
                 example4
                 (\(_e :: SomeException) -> return 42)
            >>= \_ -> return 10
@@ -101,8 +101,8 @@ example6 = catchMAC
 {-
    The exception gets triggered in this case.
 -}
-example6_1 :: MAC L Int
-example6_1 = catchMAC
+example6_1 :: MonadCatch m => MACT L m Int
+example6_1 = catch
                 (error "chau")
                 (\(_e :: SomeException) -> return 42)
 
@@ -110,8 +110,8 @@ example6_1 = catchMAC
 {-
    The exception gets caught.
 -}
-example7 :: MAC L Int
-example7 = catchMAC
+example7 :: MonadCatch m => MACT L m Int
+example7 = catch
                 ( example3 >> return 1 )
                 (\(_e :: SomeException) -> return 42)
 
@@ -119,11 +119,11 @@ example7 = catchMAC
 {-
    The exception does not escape toLabeled.
 -}
-example8 :: MAC L Int
+example8 :: MonadCatch m => MACT L m Int
 example8 = do example1
               toLabeled $ do _ <- high
-                             throwMAC ThatException
+                             throwM ThatException
               return 42
 
-example9 :: MAC L Int
+example9 :: MonadCatch m => MACT L m Int
 example9 = joinMAC (high >> error "chau") >> return 10

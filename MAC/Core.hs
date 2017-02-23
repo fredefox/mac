@@ -1,4 +1,4 @@
-{-# LANGUAGE Unsafe #-}
+{-# LANGUAGE Safe #-}
 
 -- | It defines main data structures for security, i.e., monad family 'MAC' and
 --   labeled resources 'Res'.
@@ -12,7 +12,10 @@ module MAC.Core
      , runMACT
      , MAC
      , runMAC
+     -- Do we really want to re-export all these modules?
+     , module Control.Monad.IO.Class
      , module Control.Monad.Trans.Class
+     , module Control.Monad.Catch
     )
 
 where
@@ -20,6 +23,7 @@ where
 import Data.Functor.Identity
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
+import Control.Monad.Catch
 
 -- | Labeling expressions of type @a@ with label @l@.
 newtype Res l a = MkRes {unRes :: a}
@@ -61,3 +65,16 @@ instance MonadTrans (MACT l) where
 -- This will prove tricky if we make MACT an instance of MonadIO.
 instance MonadIO m => MonadIO (MACT l m) where
   liftIO = lift . liftIO
+
+{-|
+   Throwing exceptions
+-}
+instance (MonadThrow m) => MonadThrow (MACT l m) where
+  throwM = lift . throwM
+
+{-|
+   Throwing and catching exceptions are done among family members with the
+   same labels
+-}
+instance (MonadCatch m) => MonadCatch (MACT l m) where
+  catch (MACT io) hd = lift $ catch io (runMACT . hd)
