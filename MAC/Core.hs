@@ -24,6 +24,7 @@ import Data.Functor.Identity
 import Control.Monad.Trans.Class
 import Control.Monad.IO.Class
 import Control.Monad.Catch
+import Control.Monad.Trans.Identity
 
 -- | Labeling expressions of type @a@ with label @l@.
 newtype Res l a = MkRes {unRes :: a}
@@ -35,8 +36,11 @@ labelOf _res = undefined
 newtype MACT l m a = MACT
   {
   -- | Execute secure computations.
-   runMACT :: m a
+  _runMACT :: IdentityT m a
   }
+
+runMACT :: MACT l f a -> f a
+runMACT = runIdentityT . _runMACT
 
 {-|
     This monad labels the results of the computation (of type @a@) with
@@ -56,10 +60,10 @@ instance Monad m => Applicative (MACT l m) where
 
 instance Monad m => Monad (MACT l m) where
    return = pure
-   MACT m >>= k = lift (m >>= runMACT . k)
+   MACT m >>= k = MACT (m >>= _runMACT . k)
 
 instance MonadTrans (MACT l) where
-  lift = MACT
+  lift = MACT . lift
 
 -- The original function `ioTCB` had a comment that it should not be exported.
 -- This will prove tricky if we make MACT an instance of MonadIO.
@@ -77,4 +81,4 @@ instance (MonadThrow m) => MonadThrow (MACT l m) where
    same labels
 -}
 instance (MonadCatch m) => MonadCatch (MACT l m) where
-  catch (MACT io) hd = lift $ catch io (runMACT . hd)
+  catch (MACT io) hd = MACT $ catch io (_runMACT . hd)
