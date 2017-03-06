@@ -6,21 +6,30 @@ module Examples.Bob3 where
 import Data.Maybe
 import Data.List
 
-import MAC.MAC
+import MAC.MAC hiding (MAC)
 import MAC.Lattice
 import MAC.Labeled
 import MAC.Control
 import Control.Monad
 
-import MAC.Exception
-import Control.Exception
+import Control.Exception hiding (catch)
 
-import Examples.MACWget
+import Control.Monad.Catch
+
+import qualified Examples.MACWget as Wget
 import Data.List.Split
+import Data.ByteString.Lazy.Char8 (unpack)
 
 import Data.Bits
 import Data.Char
 
+type MAC m a = MACT m IO a
+
+wgetMAC :: String -> MAC L String
+wgetMAC = fmap unpack . Wget.wgetMAC
+
+catchMAC :: Exception e => MAC l a -> (e -> MAC l a) -> MAC l a
+catchMAC = catch
 
 -- Bob's code
 common_pass :: Labeled H String -> MAC L (Labeled H Bool)

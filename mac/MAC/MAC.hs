@@ -9,6 +9,8 @@ module MAC.MAC
      -- Monad MAC
      , MACT ()
      , runMACT
+     , MAC ()
+     , runMAC
      -- Auxiliary proxies
      , fix
     )

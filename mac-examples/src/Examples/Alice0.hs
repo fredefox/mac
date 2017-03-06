@@ -1,6 +1,6 @@
 module Examples.Alice0 where
 
-import qualified Bob0 as Bob
+import qualified Examples.Bob0 as Bob
 type Pass = String
 
 {-
@@ -26,4 +26,4 @@ password = do
   b <- Bob.common_pass pass
   if b then do putStrLn "Your password is too common!"
                password
-  else return pass
+    else return pass

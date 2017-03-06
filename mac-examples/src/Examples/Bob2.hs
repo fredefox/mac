@@ -5,13 +5,19 @@ import Data.Maybe
 import Data.List
 import Data.List.Split
 
-import MAC.MAC
+import MAC.MAC hiding (MAC)
 import MAC.Lattice
 import MAC.Labeled
 import MAC.Control
 import Control.Monad
 
-import Examples.MACWget
+import qualified Examples.MACWget as Wget
+import Data.ByteString.Lazy.Char8 (unpack)
+
+type MAC m a = MACT m IO a
+
+wgetMAC :: String -> MAC L String
+wgetMAC = fmap unpack . Wget.wgetMAC
 
 -- Bob's code
 common_pass :: Labeled H String -> MAC L (Labeled H Bool)

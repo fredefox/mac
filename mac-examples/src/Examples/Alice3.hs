@@ -3,11 +3,16 @@
 module Examples.Alice3 where
 
 import MAC.Lattice
-import MAC.Core
+import MAC.Core hiding (MAC, runMAC)
 import MAC.Labeled
 
 import Data.Bits
 import qualified Examples.Bob3 as Bob
+
+type MAC m a = MACT m IO a
+
+runMAC :: MAC l a -> IO a
+runMAC = runMACT
 
 {-
    Bob's code tries to exploit leaking information by leveraging

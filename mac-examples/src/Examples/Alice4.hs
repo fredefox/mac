@@ -3,13 +3,22 @@
 module Examples.Alice4 where
 
 import MAC.Lattice
-import MAC.Core
+import MAC.Core hiding (MAC, try, runMAC)
 import MAC.Labeled
-import Examples.MACWget
+import qualified Examples.MACWget as Wget
+import Data.ByteString.Lazy.Char8 (unpack)
 
 import Data.Bits
 
 import qualified Examples.Bob4 as Bob
+
+type MAC m a = MACT m IO a
+
+wgetMAC :: String -> MAC L String
+wgetMAC = fmap unpack . Wget.wgetMAC
+
+runMAC :: MAC l a -> IO a
+runMAC = runMACT
 
 {-
    Safe use of references. The password mananger uses memoization
@@ -26,4 +35,4 @@ try wget= do putStr "Please, select your password:"
                      >>= Bob.common_pass wget
              let MkId b = unRes lbool
              if b then putStrLn "Your password is too common!" >> (try wget)
-             else return pass
+               else return pass

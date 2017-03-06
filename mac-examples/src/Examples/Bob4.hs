@@ -6,7 +6,7 @@ module Examples.Bob4 where
 import Data.Maybe
 import Data.List
 
-import MAC.MAC
+import MAC.MAC hiding (MAC)
 import MAC.Lattice
 import MAC.Labeled
 import MAC.Control
@@ -14,6 +14,8 @@ import MAC.Ref
 
 import Control.Monad
 import Data.List.Split
+
+type MAC l a = MACT l IO a
 
 -- Bob's code
 common_pass :: (String -> MAC L String) -> Labeled H String

@@ -2,10 +2,15 @@
 module Examples.Alice2 where
 
 import MAC.Lattice
-import MAC.Core
+import MAC.Core hiding (MAC, runMAC)
 import MAC.Labeled
 
 import qualified Examples.Bob2 as Bob
+
+type MAC m a = MACT m IO a
+
+runMAC :: MAC l a -> IO a
+runMAC = runMACT
 
 {-
   In this example, Bob's code exploits the termination covert channel to

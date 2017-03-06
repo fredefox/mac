@@ -3,8 +3,13 @@ module Examples.Bob0 where
 import Data.Maybe
 import Data.List
 
-import Network.HTTP.Wget
+import qualified Examples.MACWget as Wget
+import Data.ByteString.Lazy.Char8 (unpack)
+
 import Data.List.Split
+
+wget :: String -> a -> a -> IO String
+wget url _ _ = unpack <$> Wget.wget url
 
 -- Bob's code
 common_pass :: String -> IO Bool
