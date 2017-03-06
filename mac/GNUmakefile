@@ -1,3 +1,7 @@
+define WARNING
+WARNING: This makefile is not maintained use it at your own discretion.
+Alternatively use stack.
+endef
 
 PKG = $(basename $(wildcard *.cabal))
 HSCS := $(patsubst %.hsc,%.hs,$(shell find . -name '*.hsc' -print))
@@ -11,7 +15,10 @@ GHC = ghc $(WALL)
 WALL = -Wall -Werror
 LIBS = -lz
 
-Setup: Setup.hs
+warn:
+	$(info $(WARNING))
+
+Setup: warn Setup.hs
 	$(GHC) --make Setup.hs
 
 dist/setup-config: Setup $(PKG).cabal
