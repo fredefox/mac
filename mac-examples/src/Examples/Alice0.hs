@@ -1,4 +1,4 @@
-module Alice0 where
+module Examples.Alice0 where
 
 import qualified Bob0 as Bob
 type Pass = String

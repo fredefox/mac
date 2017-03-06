@@ -33,14 +33,6 @@ description:
 
 extra-source-files:
      GNUmakefile,
-     changelog.md
-     Examples/Examples.hs,
-     Examples/Alice0.hs, Examples/Bob0.hs,
-     Examples/Alice1.hs, Examples/Bob1.hs,
-     Examples/Alice2.hs, Examples/Bob2.hs,
-     Examples/Alice3.hs, Examples/Bob3.hs,
-     Examples/Alice4.hs, Examples/Bob4.hs,
-     Examples/MACWget.hs
      stack.yaml
 
 library
@@ -59,11 +51,8 @@ library
        MAC.MVar,
        MAC.Labeled
        MAC.Core,
-       MAC.Effects
-
-  other-modules:
-    Examples.MACWget
-
+       MAC.Effects,
+       MAC.Exception
 
 Source-repository head
   Type:     git

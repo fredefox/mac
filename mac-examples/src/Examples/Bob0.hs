@@ -1,4 +1,4 @@
-module Bob0 where
+module Examples.Bob0 where
 
 import Data.Maybe
 import Data.List

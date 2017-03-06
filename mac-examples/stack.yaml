@@ -2,8 +2,10 @@ resolver: lts-8.2
 
 packages:
 - '.'
+- '../mac'
+
 extra-deps:
-  - http-conduit-2.2.3
+- http-conduit-2.2.3
 
 flags: {}
 
