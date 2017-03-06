@@ -29,14 +29,18 @@ description:
         The library provides secure versions of advance programming languages
         features like references, exceptions, and concurrency. This package is
         the accompanying code for the paper
-        <http://www.cse.chalmers.se/~russo/publications_files/pearl-russo.pdf Functional Pearl: Two can keep a secret, if one of them uses Haskell>.
+
+        <http://www.cse.chalmers.se/~russo/publications_files/pearl-russo.pdf
+        Functional Pearl: Two can keep a secret, if one of them uses Haskell>.
 
 extra-source-files:
      GNUmakefile,
      stack.yaml
 
 library
-  build-depends:       base >= 4.7 && < 5, exceptions == 0.8.*, transformers == 0.5.*
+  build-depends:       base >= 4.7 && < 5
+                     , exceptions == 0.8.*
+                     , transformers == 0.5.*
 
   default-extensions:  MultiParamTypeClasses
   other-extensions:    Safe, Trustworthy
