@@ -4,9 +4,6 @@ packages:
 - '.'
 - '../mac'
 
-extra-deps:
-- http-conduit-2.2.3
-
 flags: {}
 
 extra-package-dbs: []
