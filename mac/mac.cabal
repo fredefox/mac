@@ -55,8 +55,7 @@ library
        MAC.MVar,
        MAC.Labeled
        MAC.Core,
-       MAC.Effects,
-       MAC.Exception
+       MAC.Effects
 
 Source-repository head
   Type:     git

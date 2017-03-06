@@ -3,7 +3,9 @@
 
 {-# LANGUAGE Safe #-}
 
--- | Example secure computations involving pure values and side-effects. To see how to run the computationts defined here, please check the module "SafeExample".
+-- | Example secure computations involving pure values and side-effects. To see
+-- how to run the computationts defined here, please check the module
+-- "SafeExample".
 module Examples where
 
 import MAC.Core
@@ -12,8 +14,6 @@ import MAC.Labeled
 import MAC.Control
 
 import Data.Typeable
-
-import Control.Monad
 
 low :: Monad m => MACT L m (Labeled L String)
 low = label "public data"
