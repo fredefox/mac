@@ -1,4 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE EmptyDataDecls #-}
 
 {-# LANGUAGE Safe #-}
 
@@ -13,9 +14,9 @@ where
 
 
 -- | Label for public data
-data L = MkL
+data L
 -- | Label for secrets
-data H = MkH
+data H
 
 -- Pablo's trick to avoid instances
 -- Define a super-class
