@@ -29,6 +29,9 @@ import Control.Monad.Trans.Identity
 -- | Labeling expressions of type @a@ with label @l@.
 newtype Res l a = MkRes {unRes :: a}
 
+instance Functor (Res l) where
+  fmap f (MkRes a) = MkRes (f a)
+
 -- | Label of resources
 labelOf :: Res l a -> l
 labelOf _res = undefined
