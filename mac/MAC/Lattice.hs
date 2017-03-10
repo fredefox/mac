@@ -12,6 +12,7 @@ module MAC.Lattice
     )
 where
 
+import MAC.Core (Public)
 
 -- | Label for public data
 data L
@@ -33,3 +34,5 @@ instance CanFlowTo H H where
 instance Less L L where
 instance Less L H where
 instance Less H H where
+
+instance Public L

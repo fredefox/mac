@@ -5,6 +5,7 @@ module MAC.MAC
     (
      -- It comes from Core
        Res ()
+     , mkRes
      , labelOf
      -- Monad MAC
      , MACT ()
