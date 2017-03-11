@@ -77,6 +77,10 @@ instance Monad m => Monad (MACT l m) where
 -- Note that `lift` can be used to do the same as `liftIO`:
 --
 --     runMACT $ (lift getLine :: MACT H IO String)
+--
+-- The answer probably is that *yes* we do need to add this constraint, I
+-- haven't done this because it has ramifications throughout the whole library.
+-- It's essentially a too strong requirement.
 instance MonadTrans (MACT l) where
   lift = MACT . lift
 
